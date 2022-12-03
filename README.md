@@ -8,6 +8,7 @@ This framework using env for betters performance :
 
 - `LOGLEVEL` : To save the log level. So only declaring in one instance, all instance can read that log level.
 - `LOGFILTERS` : To save any instance that can display context on console or terminal (according to the name that was given at the time of initialization). default is `all,unamed`.
+- `LOGWARNINGLEVEL` : To save the warning level.
 
 - `debug` or `verbose` : To showing all level in terminal.
 - `info` : Shows only context with level `info` on console or terminal.
@@ -40,3 +41,5 @@ log.log("Hello World") // ( name ) info - Hello World
 - `setFilters` : Setting any instance that can display context in the console or terminal.
 
 ## MIT LICENSE
+
+Build with ♥️ by [tgsnake dev](https://t.me/tgsnakechat).

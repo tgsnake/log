@@ -45,11 +45,13 @@ export class Logger {
       },
       options
     );
-    this._warningLevel = 'hard';
     // @ts-ignore
     this._name = options.name.split(' ').join('-');
-    process.env.LOGLEVEL = options.level;
-    process.env.LOGFILTERS = 'all,unamed';
+    process.env.LOGLEVEL = process.env.LOGLEVEL ? process.env.LOGLEVEL : options.level;
+    process.env.LOGFILTERS = process.env.LOGFILTERS ? process.env.LOGFILTERS : 'all,unamed';
+    process.env.LOGWARNINGLEVEL = process.env.LOGWARNINGLEVEL
+      ? process.env.LOGWARNINGLEVEL
+      : 'hard';
     this._color = Object.assign(
       {
         debug: 'blue',
@@ -65,9 +67,20 @@ export class Logger {
    * @hidden
    * Creating a log template.
    */
-  private template(level: string) {
-    //@ts-ignore
-    return [chalk[this._color.name](`( ${this._name} )`), chalk[this._color[level]](level), '-'];
+  private template(level: string, ...args: Array<any>) {
+    let now = new Date();
+    return [
+      // @ts-ignore
+      chalk[this._color.name](`(${this._name})`),
+      chalk[this._color[level]](level),
+      '-',
+      ...args,
+      chalk.grey(
+        `${now.getDate()}/${
+          now.getMonth() + 1
+        }/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`
+      ),
+    ];
   }
   /**
    * @hidden
@@ -115,8 +128,7 @@ export class Logger {
     //@ts-ignore
     if (!approved.includes(_level!))
       return this.error(`Level of warning must be "hard" or "soft", but got "${level}"`);
-    //@ts-ignore
-    return (this._warningLevel = _level);
+    return (process.env.LOGWARNINGLEVEL = _level);
   }
   /**
    * Setting a log filters <br/>
@@ -177,7 +189,7 @@ export class Logger {
   debug(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['debug', 'verbose'];
     if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('debug'!), ...args);
+    return this.log(...this.template('debug'!, ...args));
   }
   /**
    * Creating log with info level
@@ -185,7 +197,7 @@ export class Logger {
   info(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['info', 'debug', 'verbose'];
     if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('info'!), ...args);
+    return this.log(...this.template('info'!, ...args));
   }
   /**
    * Creating log with error level
@@ -193,18 +205,18 @@ export class Logger {
   error(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['error', 'debug', 'verbose'];
     if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('error'!), ...args);
+    return this.log(...this.template('error'!, ...args));
   }
   /**
    * Creating log with warning level
    */
   warning(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['warning', 'debug', 'verbose'];
-    if (this._warningLevel === 'hard') {
+    if (process.env.LOGWARNINGLEVEL === 'hard') {
       level.concat(['none', 'info', 'error']);
     }
     if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('warning'!), ...args);
+    return this.log(...this.template('warning'!, ...args));
   }
   /**
    * Creating log with combine level. <br/>
@@ -213,11 +225,12 @@ export class Logger {
    */
   combine(level: Array<TypeLogLevel>, ...args: Array<any>) {
     if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template(level[0]!), ...args);
+    return this.log(...this.template(level[0]!, ...args));
   }
-  /** @hidden */
-  [NodeUtil.inspect.custom]() {
-    const toPrint: { [key: string]: any } = {};
+  [Symbol.for('nodejs.util.inspect.custom')](): { [key: string]: any } {
+    const toPrint: { [key: string]: any } = {
+      _: this.constructor.name,
+    };
     for (const key in this) {
       if (this.hasOwnProperty(key)) {
         const value = this[key];
@@ -228,21 +241,21 @@ export class Logger {
     }
     return toPrint;
   }
-  /** @hidden */
-  toJSON() {
-    const toPrint: { [key: string]: any } = {};
+  toJSON(): { [key: string]: any } {
+    const toPrint: { [key: string]: any } = {
+      _: this.constructor.name,
+    };
     for (const key in this) {
       if (this.hasOwnProperty(key)) {
         const value = this[key];
         if (!key.startsWith('_')) {
-          if (typeof value == 'bigint') {
-            toPrint[key] = String(value);
-          } else {
-            toPrint[key] = value;
-          }
+          toPrint[key] = typeof value === 'bigint' ? String(value) : value;
         }
       }
     }
     return toPrint;
+  }
+  toString() {
+    return `[constructor of ${this.constructor.name}] ${JSON.stringify(this, null, 2)}`;
   }
 }
