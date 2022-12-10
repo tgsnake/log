@@ -22,10 +22,10 @@ This framework using env for betters performance :
 const { Logger } = require("@tgsnake/log")
 const log = new Logger({
   name : "some-string-without-space-here",
-  level : "debug" // default level for this log
+  level : ["debug"] // default level for this log
 })
 
-log.log("Hello World") // ( name ) info - Hello World
+log.log("Hello World") // (name) info - Hello World DD/MM/YY hh:mm:ss.ms
 ```
 
 ## Class Method

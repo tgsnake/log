@@ -20,7 +20,7 @@ export type TypeLogLevel = 'none' | 'info' | 'debug' | 'error' | 'verbose' | 'wa
 export type TypeWarningLevel = 'soft' | 'hard';
 export interface LoggerOptions {
   name?: string;
-  level?: TypeLogLevel;
+  level?: Array<TypeLogLevel>;
   customColor?: LoggerColor;
 }
 export class Logger {
@@ -34,7 +34,7 @@ export class Logger {
     options = Object.assign(
       {
         name: 'unamed',
-        level: process.env.LOGLEVEL ?? 'debug',
+        level: process.env.LOGLEVEL ?? ['debug'],
         customColor: {
           debug: 'blue',
           info: 'green',
@@ -47,7 +47,7 @@ export class Logger {
     );
     // @ts-ignore
     this._name = options.name.split(' ').join('-');
-    process.env.LOGLEVEL = process.env.LOGLEVEL ? process.env.LOGLEVEL : options.level;
+    process.env.LOGLEVEL = process.env.LOGLEVEL ? process.env.LOGLEVEL : options.level?.join('|');
     process.env.LOGFILTERS = process.env.LOGFILTERS ? process.env.LOGFILTERS : 'all,unamed';
     process.env.LOGWARNINGLEVEL = process.env.LOGWARNINGLEVEL
       ? process.env.LOGWARNINGLEVEL
@@ -96,26 +96,31 @@ export class Logger {
    * @hidden
    * Get the current log level
    */
-  private get _level(): TypeLogLevel {
+  private get _level(): Array<TypeLogLevel> {
     //@ts-ignore
-    return process.env.LOGLEVEL ?? 'debug';
+    return process.env.LOGLEVEL ? process.env.LOGLEVEL.split('|') : ['debug'];
   }
-  private set _level(level: TypeLogLevel) {
-    process.env.LOGLEVEL = level;
+  private set _level(level: Array<TypeLogLevel>) {
+    process.env.LOGLEVEL = level.join('|');
   }
   /**
    * Setting a log level.
    */
-  setLogLevel(level: TypeLogLevel) {
-    let _level = level.toLowerCase().trim();
-    let approved: Array<TypeLogLevel> = ['none', 'info', 'debug', 'error', 'verbose'];
-    //@ts-ignore
-    if (!approved.includes(_level!))
-      return this.error(
-        `Level of warning must be "none" or "info" or "debug" or "error" or "verbose", but got "${level}"`
-      );
-    //@ts-ignore
-    return (this._level = _level);
+  setLogLevel(level: Array<TypeLogLevel>) {
+    level = level.filter((_level, index) => {
+      // @ts-ignore
+      _level = _level.toLowerCase().trim();
+      let approved: Array<TypeLogLevel> = ['none', 'info', 'debug', 'error', 'verbose'];
+      //@ts-ignore
+      if (!approved.includes(_level!)) {
+        this.error(
+          `Level of warning must be "none" or "info" or "debug" or "error" or "verbose", but got "${_level}"`
+        );
+        return false;
+      }
+      return true;
+    });
+    return (this._level = level);
   }
   /**
    * Setting a warning level. <br/>
@@ -188,24 +193,33 @@ export class Logger {
    */
   debug(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['debug', 'verbose'];
-    if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('debug'!, ...args));
+    for (let l of this._level) {
+      if (level.includes(l)) {
+        this.log(...this.template('debug'!, ...args));
+      }
+    }
   }
   /**
    * Creating log with info level
    */
   info(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['info', 'debug', 'verbose'];
-    if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('info'!, ...args));
+    for (let l of this._level) {
+      if (level.includes(l)) {
+        this.log(...this.template('info'!, ...args));
+      }
+    }
   }
   /**
    * Creating log with error level
    */
   error(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['error', 'debug', 'verbose'];
-    if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('error'!, ...args));
+    for (let l of this._level) {
+      if (level.includes(l)) {
+        this.log(...this.template('error'!, ...args));
+      }
+    }
   }
   /**
    * Creating log with warning level
@@ -215,8 +229,11 @@ export class Logger {
     if (process.env.LOGWARNINGLEVEL === 'hard') {
       level.concat(['none', 'info', 'error']);
     }
-    if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template('warning'!, ...args));
+    for (let l of this._level) {
+      if (level.includes(l)) {
+        this.log(...this.template('warning'!, ...args));
+      }
+    }
   }
   /**
    * Creating log with combine level. <br/>
@@ -224,8 +241,11 @@ export class Logger {
    * The selected template will use the first index in the array.
    */
   combine(level: Array<TypeLogLevel>, ...args: Array<any>) {
-    if (!level.includes(this._level)) return this._level;
-    return this.log(...this.template(level[0]!, ...args));
+    for (let l of this._level) {
+      if (level.includes(l)) {
+        this.log(...this.template(level[0]!, ...args));
+      }
+    }
   }
   [Symbol.for('nodejs.util.inspect.custom')](): { [key: string]: any } {
     const toPrint: { [key: string]: any } = {
