@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2022 butthx <https://github.com/butthx>
+ * Copyright (C) 2023 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -9,6 +9,7 @@
  */
 import chalk from 'chalk';
 import * as NodeUtil from 'util';
+import { getLS, LocalStorage } from './LocalStorage';
 export interface LoggerColor {
   debug?: string;
   info?: string;
@@ -30,11 +31,13 @@ export class Logger {
   private _warningLevel!: TypeWarningLevel;
   /** @hidden */
   private _color!: LoggerColor;
+  /** @hidden */
+  private _storage: LocalStorage = getLS();
   constructor(options: LoggerOptions = {}) {
     options = Object.assign(
       {
         name: 'unamed',
-        level: process.env.LOGLEVEL ?? ['debug'],
+        level: this._storage.getItem('LOGLEVEL') || ['debug'],
         customColor: {
           debug: 'blue',
           info: 'green',
@@ -47,11 +50,12 @@ export class Logger {
     );
     // @ts-ignore
     this._name = options.name.split(' ').join('-');
-    process.env.LOGLEVEL = process.env.LOGLEVEL ? process.env.LOGLEVEL : options.level?.join('|');
-    process.env.LOGFILTERS = process.env.LOGFILTERS ? process.env.LOGFILTERS : 'all,unamed';
-    process.env.LOGWARNINGLEVEL = process.env.LOGWARNINGLEVEL
-      ? process.env.LOGWARNINGLEVEL
-      : 'hard';
+    this._storage.setItem(
+      'LOGLEVEL',
+      (this._storage.getItem('LOGLEVEL') || options.level?.join('|')) as string
+    );
+    this._storage.setItem('LOGFILTERS', this._storage.getItem('LOGFILTERS') || 'all,unamed');
+    this._storage.setItem('LOGWARNINGLEVEL', this._storage.getItem('LOGWARNINGLEVEL') || 'hard');
     this._color = Object.assign(
       {
         debug: 'blue',
@@ -87,7 +91,7 @@ export class Logger {
    * Filters this instance is allowed to write context in console.
    */
   private isAllowed(): boolean {
-    let env = String(process.env.LOGFILTERS).split(',');
+    let env = String(this._storage.getItem('LOGFILTERS') || '').split(',');
     if (!env.length) env = ['all', 'unamed'];
     if (env.includes('all')) return true;
     return env.includes(this._name);
@@ -98,10 +102,10 @@ export class Logger {
    */
   private get _level(): Array<TypeLogLevel> {
     //@ts-ignore
-    return process.env.LOGLEVEL ? process.env.LOGLEVEL.split('|') : ['debug'];
+    return String(this._storage.getItem('LOGLEVEL') || 'debug').split('|');
   }
   private set _level(level: Array<TypeLogLevel>) {
-    process.env.LOGLEVEL = level.join('|');
+    this._storage.setItem('LOGLEVEL', level.join('|'));
   }
   /**
    * Setting a log level.
@@ -133,7 +137,7 @@ export class Logger {
     //@ts-ignore
     if (!approved.includes(_level!))
       return this.error(`Level of warning must be "hard" or "soft", but got "${level}"`);
-    return (process.env.LOGWARNINGLEVEL = _level);
+    return this._storage.setItem('LOGWARNINGLEVEL', _level);
   }
   /**
    * Setting a log filters <br/>
@@ -148,7 +152,7 @@ export class Logger {
         temp.push(filter.split(' ').join('-'));
       }
     }
-    process.env.LOGFILTERS = temp.join(',');
+    this._storage.setItem('LOGFILTERS', temp.join(','));
     return true;
   }
   /**
@@ -226,7 +230,7 @@ export class Logger {
    */
   warning(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['warning', 'debug', 'verbose'];
-    if (process.env.LOGWARNINGLEVEL === 'hard') {
+    if (this._storage.getItem('LOGWARNINGLEVEL') === 'hard') {
       level.concat(['none', 'info', 'error']);
     }
     for (let l of this._level) {

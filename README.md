@@ -4,7 +4,7 @@ This framework is used to better display logs on your console or terminal.
 
 ## Available log levels
 
-This framework using env for betters performance :
+This framework using `env` in node and `localStorage` in browser for betters performance :
 
 - `LOGLEVEL` : To save the log level. So only declaring in one instance, all instance can read that log level.
 - `LOGFILTERS` : To save any instance that can display context on console or terminal (according to the name that was given at the time of initialization). default is `all,unamed`.
