@@ -7,9 +7,8 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import chalk from 'chalk';
-import * as NodeUtil from 'util';
-import { getLS, LocalStorage } from './LocalStorage';
+import { chalk, NodeUtil } from './platform.deno.ts';
+import { getLS, LocalStorage } from './LocalStorage.ts';
 export interface LoggerColor {
   debug?: string;
   info?: string;

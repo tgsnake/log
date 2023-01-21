@@ -1,4 +1,5 @@
-import { Logger } from '../src/index.ts';
+const { Logger } = require('../lib');
+
 const log = new Logger({
   level: ['warning', 'info'],
 });
