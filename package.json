@@ -1,6 +1,6 @@
 {
   "name": "@tgsnake/log",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "logging framework for tgsnake",
   "main": "./lib/index.js",
   "devDependencies": {

@@ -9,6 +9,5 @@
  */
 
 import chalk from 'https://deno.land/x/chalk_deno@v4.1.1-deno/source/index.js';
-import * as NodeUtil from 'https://deno.land/std@0.171.0/node/util.ts';
-
-export { chalk, NodeUtil };
+export const { inspect } = Deno;
+export { chalk };

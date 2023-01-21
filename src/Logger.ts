@@ -7,7 +7,7 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import { chalk, NodeUtil } from './platform.deno.ts';
+import { chalk, inspect } from './platform.deno.ts';
 import { getLS, LocalStorage } from './LocalStorage.ts';
 export interface LoggerColor {
   debug?: string;
@@ -164,7 +164,7 @@ export class Logger {
         for (let arg of args) {
           if (typeof arg == 'object') {
             fargs.push(
-              NodeUtil.inspect(arg, {
+              inspect(arg, {
                 showHidden: true,
                 colors: true,
               })
@@ -178,7 +178,7 @@ export class Logger {
         let fargs: Array<any> = new Array();
         if (typeof args[0] == 'object') {
           fargs.push(
-            NodeUtil.inspect(args[0], {
+            inspect(args[0], {
               showHidden: true,
               colors: true,
             })
@@ -263,6 +263,9 @@ export class Logger {
       }
     }
     return toPrint;
+  }
+  [Symbol.for('Deno.customInspect')](): string {
+    return String(inspect(this[Symbol.for('nodejs.util.inspect.custom')]()));
   }
   toJSON(): { [key: string]: any } {
     const toPrint: { [key: string]: any } = {

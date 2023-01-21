@@ -8,6 +8,5 @@
  * it under the terms of the MIT License as published.
  */
 import chalk from 'chalk';
-import * as NodeUtil from 'util';
-
-export { chalk, NodeUtil };
+export { inspect } from 'util';
+export { chalk };
