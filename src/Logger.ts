@@ -9,6 +9,7 @@
  */
 import { chalk, inspect } from './platform.deno.ts';
 import { getLS, LocalStorage } from './LocalStorage.ts';
+import { sendLog } from './Utilities.ts';
 export interface LoggerColor {
   debug?: string;
   info?: string;
@@ -45,13 +46,13 @@ export class Logger {
           name: 'cyan',
         },
       },
-      options
+      options,
     );
     // @ts-ignore
     this._name = options.name.split(' ').join('-');
     this._storage.setItem(
       'LOGLEVEL',
-      (this._storage.getItem('LOGLEVEL') || options.level?.join('|')) as string
+      (this._storage.getItem('LOGLEVEL') || options.level?.join('|')) as string,
     );
     this._storage.setItem('LOGFILTERS', this._storage.getItem('LOGFILTERS') || 'all,unamed');
     this._storage.setItem('LOGWARNINGLEVEL', this._storage.getItem('LOGWARNINGLEVEL') || 'hard');
@@ -63,7 +64,7 @@ export class Logger {
         warning: 'yellow',
         name: 'orange',
       },
-      options.customColor
+      options.customColor,
     );
   }
   /**
@@ -81,7 +82,7 @@ export class Logger {
       chalk.grey(
         `${now.getDate()}/${
           now.getMonth() + 1
-        }/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`
+        }/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`,
       ),
     ];
   }
@@ -117,7 +118,7 @@ export class Logger {
       //@ts-ignore
       if (!approved.includes(_level!)) {
         this.error(
-          `Level of warning must be "none" or "info" or "debug" or "error" or "verbose", but got "${_level}"`
+          `Level of warning must be "none" or "info" or "debug" or "error" or "verbose", but got "${_level}"`,
         );
         return false;
       }
@@ -158,38 +159,7 @@ export class Logger {
    * Create log without template and without levels.
    */
   log(...args: Array<any>) {
-    if (this.isAllowed()) {
-      if (args.length > 1) {
-        let fargs: Array<any> = new Array();
-        for (let arg of args) {
-          if (typeof arg == 'object') {
-            fargs.push(
-              inspect(arg, {
-                showHidden: true,
-                colors: true,
-              })
-            );
-          } else {
-            fargs.push(arg);
-          }
-        }
-        console.log(...fargs);
-      } else {
-        let fargs: Array<any> = new Array();
-        if (typeof args[0] == 'object') {
-          fargs.push(
-            inspect(args[0], {
-              showHidden: true,
-              colors: true,
-            })
-          );
-        } else {
-          fargs.push(args[0]);
-        }
-        console.log(...fargs);
-      }
-    }
-    return args;
+    return sendLog(console.log, this.isAllowed(), ...args);
   }
   /**
    * Creating log with debug level
@@ -209,7 +179,7 @@ export class Logger {
     let level: Array<TypeLogLevel> = ['info', 'debug', 'verbose'];
     for (let l of this._level) {
       if (level.includes(l)) {
-        this.log(...this.template('info'!, ...args));
+        sendLog(console.info, this.isAllowed(), ...this.template('info'!, ...args));
       }
     }
   }
@@ -220,7 +190,7 @@ export class Logger {
     let level: Array<TypeLogLevel> = ['error', 'debug', 'verbose'];
     for (let l of this._level) {
       if (level.includes(l)) {
-        this.log(...this.template('error'!, ...args));
+        sendLog(console.error, this.isAllowed(), ...this.template('error'!, ...args));
       }
     }
   }
@@ -234,7 +204,7 @@ export class Logger {
     }
     for (let l of this._level) {
       if (level.includes(l)) {
-        this.log(...this.template('warning'!, ...args));
+        sendLog(console.warn, this.isAllowed(), ...this.template('warning'!, ...args));
       }
     }
   }
