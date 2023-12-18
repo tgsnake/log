@@ -17,4 +17,3 @@ for (let i = 0; i < 20; i++) {
   log.warning('Hello World');
   log.debug('Hello World');
 }
-console.log(process.env);

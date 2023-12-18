@@ -8,6 +8,13 @@
  * it under the terms of the MIT License as published.
  */
 
-import chalk from 'https://deno.land/x/chalk_deno@v4.1.1-deno/source/index.js';
-export const { inspect } = Deno;
-export { chalk };
+import { Chalk } from 'https://deno.land/x/chalk_deno@v4.1.1-deno/source/index.js';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+export const { inspect, cwd } = Deno;
+export { type Chalk, Chalk as ChalkInstance, path, fs };
+export function onEndProcess(cb: { (e?: any): any }) {
+  globalThis.addEventListener('beforeunload', cb);
+  globalThis.addEventListener('unhandledrejection', cb);
+}
+export const isBrowser = !('Deno' in globalThis);

@@ -16,9 +16,7 @@ export interface LocalStorage {
 }
 
 export function getLS(): LocalStorage {
-  // @ts-ignore
   if (!('Deno' in globalThis) && typeof window !== 'undefined') {
-    // @ts-ignore
     return localStorage;
   }
   return new Storage();
