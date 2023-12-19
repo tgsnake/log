@@ -2,6 +2,9 @@ const { Logger } = require('../lib');
 
 const log = new Logger({
   level: ['warning', 'info'],
+  customColor: {
+    date: '#fff',
+  },
 });
 
 for (let i = 0; i < 20; i++) {

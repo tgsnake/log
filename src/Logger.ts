@@ -18,14 +18,16 @@ import {
   isBrowser,
 } from './platform.deno.ts';
 import { getLS, LocalStorage } from './LocalStorage.ts';
-import { sendLog } from './Utilities.ts';
+import { sendLog, formatColor } from './Utilities.ts';
 import { Capture } from './Capture.ts';
+
 export interface LoggerColor {
   debug?: string;
   info?: string;
   error?: string;
   warning?: string;
   name?: string;
+  date?: string;
 }
 export type TypeLogLevel = 'none' | 'info' | 'debug' | 'error' | 'verbose' | 'warning';
 export type TypeWarningLevel = 'soft' | 'hard';
@@ -69,6 +71,7 @@ export class Logger {
         error: 'red',
         warning: 'yellow',
         name: 'cyan',
+        date: 'grey',
       },
       options.customColor,
     );
@@ -92,12 +95,13 @@ export class Logger {
   private template(level: string, ...args: Array<any>) {
     let now = new Date();
     return [
-      // @ts-ignore
-      this._chalk[this._color.name](`(${this._name})`),
-      this._chalk[this._color[level]](level),
+      formatColor(this._chalk, this._color.name!, `(${this._name})`),
+      formatColor(this._chalk, this._color[level], level),
       '-',
       ...args,
-      this._chalk.grey(
+      formatColor(
+        this._chalk,
+        this._color.date!,
         `${now.getDate()}/${
           now.getMonth() + 1
         }/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`,

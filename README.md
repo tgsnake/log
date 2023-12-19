@@ -18,14 +18,14 @@ This framework using `env` in node and `localStorage` in browser for betters per
 
 ## How to use
 
-```
-const { Logger } = require("@tgsnake/log")
+```js
+const { Logger } = require('@tgsnake/log');
 const log = new Logger({
-  name : "some-string-without-space-here",
-  level : ["debug"] // default level for this log
-})
+  name: 'some-string-without-space-here',
+  level: ['debug'], // default level for this log
+});
 
-log.log("Hello World") // (name) info - Hello World DD/MM/YY hh:mm:ss.ms
+log.log('Hello World'); // (name) info - Hello World DD/MM/YY hh:mm:ss.ms
 ```
 
 ## Class Method
@@ -66,6 +66,45 @@ You don't need to create an .env file, you can do it like this :
 
 ```bash
 CAPTURELOG="all" node index.js
+```
+
+## Options
+
+| parameter | type | description |
+| :-- | :-: | :-- |
+| name | string | Name of logger instance, default is `unamed` |
+| level | Array of `debug`, `none`, `info`, `error`, `verbose` | The level of the logger. By default it will take the value from the env `LOGLEVEL` or if it is not available it will automatically go into `debug` level |
+| customColor | [Color](#color) | Console color customization |
+
+### Color
+
+On deno supports chalk v5 customization while on node supports chalk v4 customization. For RGB, HSL (only for node), HSV (only for node), HWB (only for node), you can use the format: `format(a,b,c)` example `rgb(0,0,0)` or `hsl(0,0,0)`. And you can directly provide the hex code (eg: `#fff`). In nodes, you can also use [keywords from CSS](https://www.w3.org/wiki/CSS/Properties/color/keywords) like `orange`.
+
+| category |  type  | description                              |
+| :------- | :----: | :--------------------------------------- |
+| name     | string | color of logger name                     |
+| date     | string | color of date                            |
+| debug    | string | color when debug level and verbose level |
+| info     | string | color when info level                    |
+| error    | string | color when error level                   |
+| warning  | string | color when warning level                 |
+
+#### Example
+
+```js
+const { Logger } = require("@tgsnake/log")
+const log = new Logger({
+  name : "some-string-without-space-here",
+  level : ["debug"] // default level for this log,
+  customColor : {
+    debug: 'blue',
+    info: 'rgb(0,255,0)',
+    error: '#ff0505',
+    warning: 'hsv(44,98,100)',
+    name: 'azure',
+    date: 'grey',
+  }
+})
 ```
 
 ## MIT LICENSE

@@ -7,8 +7,10 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import { inspect } from './platform.deno.ts';
+import { inspect, type Chalk } from './platform.deno.ts';
 
+const RGBRe = /(\w+)\((\d+),(\d+),(\d+)\)/i;
+const HEXRe = /^#([A-F0-9]{3}|[A-F0-9]{6})$/i;
 export type NativeLog =
   | typeof console.log
   | typeof console.error
@@ -47,4 +49,32 @@ export function sendLog(nativelog: NativeLog, isAllowed: boolean, ...args: Array
     }
   }
   return args;
+}
+export function formatColor(chalk: Chalk, color: string, text: string) {
+  if (RGBRe.exec(color)) {
+    const [input, format, a, b, c] = RGBRe.exec(color) as RegExpExecArray;
+    if (format.toLocaleLowerCase() === 'rgb' && chalk.rgb) {
+      return chalk.rgb(Number(a), Number(b), Number(c))(text);
+    }
+    if (format.toLocaleLowerCase() === 'hsl' && chalk.hsl) {
+      return chalk.hsl(Number(a), Number(b), Number(c))(text);
+    }
+    if (format.toLocaleLowerCase() === 'hsv' && chalk.hsv) {
+      return chalk.hsv(Number(a), Number(b), Number(c))(text);
+    }
+    if (format.toLocaleLowerCase() === 'hwb' && chalk.hwb) {
+      return chalk.hwb(Number(a), Number(b), Number(c))(text);
+    }
+    return text;
+  }
+  if (HEXRe.test(color) && chalk.hex) {
+    return chalk.hex(color)(text);
+  }
+  if (chalk[color]) {
+    return chalk[color](text);
+  }
+  if (chalk.keyword) {
+    return chalk.keyword(color)(text);
+  }
+  return text;
 }
