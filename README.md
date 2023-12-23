@@ -44,7 +44,7 @@ log.log('Hello World'); // (name) info - Hello World DD/MM/YY hh:mm:ss.ms
 
 **The log capture feature is only available on node js and deno platforms, not available for browsers!**
 
-To capture logs we use env as the trigger. When in the env have `CAPTURELOG` The capture function will automatically work and stop when the program is finished (`beforeExit`, `exit` event on node and `beforeunload`,`unload` event on deno) or when it is forced to stop due to an error (`unhandledRejection` event on node and `unhandledrejection` on deno).  
+To capture logs we use env as the trigger. When in the env have `CAPTURELOG` The capture function will automatically work and stop when the program is finished (`beforeExit`, `exit` event on node and `beforeunload`,`unload`, `unhadlerejection` event on deno) or when it is forced to stop due to an error.  
 The log will be captured in the form of a log file with filename format: `{name}-{Date.now()}.log` and will be saved in the current work dir (cwd).  
 Value of env `CAPTURELOG` is name of logger or can be `'all'` for each instance the logger runs the capture function.
 

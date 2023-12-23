@@ -15,7 +15,6 @@ export { type Chalk, Instance as ChalkInstance, path, fs };
 export function onEndProcess(cb: { (e?: any): any }) {
   process.on('beforeExit', cb);
   process.on('exit', cb);
-  process.on('unhandledRejection', cb);
 }
 export const { cwd } = process;
 export const isBrowser = typeof window !== 'undefined';
