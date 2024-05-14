@@ -7,19 +7,9 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import {
-  type Chalk,
-  ChalkInstance,
-  inspect,
-  onEndProcess,
-  path,
-  cwd,
-  fs,
-  isBrowser,
-} from './platform.deno.ts';
+import { type Chalk, ChalkInstance, inspect, isBrowser } from './platform.deno.ts';
 import { getLS, LocalStorage } from './LocalStorage.ts';
 import { sendLog, formatColor } from './Utilities.ts';
-import { Capture } from './Capture.ts';
 
 export interface LoggerColor {
   debug?: string;
@@ -43,8 +33,6 @@ export class Logger {
   private _color!: LoggerColor;
   /** @ignore */
   private _storage: LocalStorage = getLS();
-  /** @ignore */
-  private _captures: Capture = new Capture();
   /** @ignore */
   private _chalk: Chalk = new ChalkInstance({ level: 3 });
   constructor(options: LoggerOptions = {}) {
@@ -75,18 +63,6 @@ export class Logger {
       },
       options.customColor,
     );
-    if (!isBrowser && this._storage.getItem('CAPTURELOG')) {
-      onEndProcess(
-        this.handleEventCapture(
-          this._captures,
-          this._storage,
-          this._name,
-          this._level.join(','),
-          this._storage.getItem('LOGWARNINGLEVEL') || 'hard',
-          this.isAllowed(),
-        ),
-      );
-    }
   }
   /**
    * @ignore
@@ -94,6 +70,16 @@ export class Logger {
    */
   private template(level: string, ...args: Array<any>) {
     let now = new Date();
+    if (isBrowser) {
+      return [
+        `%c(${this._name}) %c${level} - %c${'%o'.repeat(args.length)} %c${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`,
+        `color: ${this._color.name};`,
+        `color: ${this._color[level]};`,
+        ``,
+        ...args,
+        `color: ${this._color.date};`,
+      ];
+    }
     return [
       formatColor(this._chalk, this._color.name!, `(${this._name})`),
       formatColor(this._chalk, this._color[level], level),
@@ -117,50 +103,6 @@ export class Logger {
     if (!env.length) env = ['all', 'unamed'];
     if (env.includes('all')) return true;
     return env.includes(this._name);
-  }
-  /**
-   * @ignore
-   * Capture all log
-   */
-  private capture(...args: Array<any>) {
-    if (!isBrowser && this._storage.getItem('CAPTURELOG')) {
-      const capturelog = (this._storage.getItem('CAPTURELOG') || 'all').split(',');
-      if (capturelog.includes('all') || capturelog.includes(this._name)) {
-        if (this._captures.length >= 500) {
-          this._captures.remove(0, 2);
-        }
-        this._captures.push(args.join(''));
-      }
-    }
-  }
-  /**
-   * @ignore
-   * Create a capture file when process is stoped
-   */
-  private handleEventCapture(
-    captures: Capture,
-    storage: LocalStorage,
-    name: string,
-    level: string,
-    warningLevel: string,
-    isAllowed: boolean,
-  ) {
-    return () => {
-      if (!isBrowser && storage.getItem('CAPTURELOG') && captures.length) {
-        const filename = path.join(
-          cwd(),
-          `${name.replace(/[/\\?%*:|"<>]/g, '-')}-${Date.now()}.log`,
-        );
-        fs.writeFileSync(
-          filename,
-          `Captured\t:\t${new Date()}\nLogger Name\t:\t${name}\nLog Level : ${level}\nWarning Level\t:\t${warningLevel}\nIs Allowed\t:\t${isAllowed}\n=============== CAPTURE BEGIN (ONLY 500 LAST LOG) ===============\n${captures.captures.join(
-            '\n',
-          )}`,
-        );
-        console.log(`Capture taken at : ${filename}`);
-        captures.clear();
-      }
-    };
   }
   /**
    * @ignore
@@ -225,7 +167,6 @@ export class Logger {
    * Create log without template and without levels.
    */
   log(...args: Array<any>) {
-    this.capture(...args);
     return sendLog(console.log, this.isAllowed(), ...args);
   }
   /**
@@ -245,7 +186,6 @@ export class Logger {
   info(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['info', 'debug', 'verbose'];
     const prnt = this.template('info'!, ...args);
-    this.capture(...prnt);
     for (let l of this._level) {
       if (level.includes(l)) {
         return sendLog(console.info, this.isAllowed(), ...prnt);
@@ -258,7 +198,6 @@ export class Logger {
   error(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['error', 'debug', 'verbose'];
     const prnt = this.template('error'!, ...args);
-    this.capture(...prnt);
     for (let l of this._level) {
       if (level.includes(l)) {
         return sendLog(console.error, this.isAllowed(), ...prnt);
@@ -271,10 +210,9 @@ export class Logger {
   warning(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['warning', 'debug', 'verbose'];
     if (this._storage.getItem('LOGWARNINGLEVEL') === 'hard') {
-      level.concat(['none', 'info', 'error']);
+      level = level.concat(['none', 'info', 'error']);
     }
     const prnt = this.template('warning'!, ...args);
-    this.capture(...prnt);
     for (let l of this._level) {
       if (level.includes(l)) {
         return sendLog(console.warn, this.isAllowed(), ...prnt);

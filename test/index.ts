@@ -1,6 +1,6 @@
 import { Logger } from '../src/index.ts';
 const log = new Logger({
-  level: ['warning', 'info'],
+  level: ['error', 'info'],
 });
 
 for (let i = 0; i < 20; i++) {

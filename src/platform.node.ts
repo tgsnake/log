@@ -8,13 +8,6 @@
  * it under the terms of the MIT License as published.
  */
 import { type Chalk, Instance } from 'chalk';
-import * as path from 'node:path';
-import * as fs from 'node:fs';
 export { inspect } from 'util';
-export { type Chalk, Instance as ChalkInstance, path, fs };
-export function onEndProcess(cb: { (e?: any): any }) {
-  process.on('beforeExit', cb);
-  process.on('exit', cb);
-}
-export const { cwd } = process;
+export { type Chalk, Instance as ChalkInstance };
 export const isBrowser = typeof window !== 'undefined';

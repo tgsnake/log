@@ -9,13 +9,6 @@
  */
 
 import { Chalk } from 'https://deno.land/x/chalk_deno@v4.1.1-deno/source/index.js';
-import * as path from 'node:path';
-import * as fs from 'node:fs';
-export const { inspect, cwd } = Deno;
-export { type Chalk, Chalk as ChalkInstance, path, fs };
-export function onEndProcess(cb: { (e?: any): any }) {
-  globalThis.addEventListener('beforeunload', cb);
-  globalThis.addEventListener('unload', cb);
-  globalThis.addEventListener('unhandledrejection', cb);
-}
+export const { inspect } = Deno;
+export { type Chalk, Chalk as ChalkInstance };
 export const isBrowser = !('Deno' in globalThis);

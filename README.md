@@ -40,34 +40,6 @@ log.log('Hello World'); // (name) info - Hello World DD/MM/YY hh:mm:ss.ms
 - `setWarningLevel` : Setting the warning level. `hard` if you want show the context in all log level, `soft` if you want show the context only in `warning` or `debug` or `verbose` level.
 - `setFilters` : Setting any instance that can display context in the console or terminal.
 
-## Capturing log
-
-**The log capture feature is only available on node js and deno platforms, not available for browsers!**
-
-To capture logs we use env as the trigger. When in the env have `CAPTURELOG` The capture function will automatically work and stop when the program is finished (`beforeExit`, `exit` event on node and `beforeunload`,`unload`, `unhadlerejection` event on deno) or when it is forced to stop due to an error.  
-The log will be captured in the form of a log file with filename format: `{name}-{Date.now()}.log` and will be saved in the current work dir (cwd).  
-Value of env `CAPTURELOG` is name of logger or can be `'all'` for each instance the logger runs the capture function.
-
-### Example :
-
-```env
-CAPTURELOG=tgsnake
-```
-
-With the example above, only the instance named `tgsnake` performs the capture function.
-
-```env
-CAPTURELOG=all
-```
-
-With the example above, all of the instance logger will be performs the capture function.
-
-You don't need to create an .env file, you can do it like this :
-
-```bash
-CAPTURELOG="all" node index.js
-```
-
 ## Options
 
 | parameter | type | description |
