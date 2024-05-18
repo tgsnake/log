@@ -72,12 +72,12 @@ export class Logger {
     let now = new Date();
     if (isBrowser) {
       return [
-        `%c(${this._name}) %c${level} - %c${'%o'.repeat(args.length)} %c${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`,
+        `%c${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()} %c(${this._name}) %c${level} %c-`,
+        `color: ${this._color.date};`,
         `color: ${this._color.name};`,
         `color: ${this._color[level]};`,
         ``,
         ...args,
-        `color: ${this._color.date};`,
       ];
     }
     return [
