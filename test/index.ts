@@ -1,4 +1,4 @@
-import { Logger } from '../src/index.ts';
+import { Logger } from '@tgsnake/log';
 const log = new Logger({
   level: ['error', 'info'],
 });

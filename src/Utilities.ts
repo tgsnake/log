@@ -49,7 +49,7 @@ export function sendLog(nativelog: NativeLog, isAllowed: boolean, ...args: Array
         if (typeof arg == 'object') {
           fargs.push(
             inspect(arg, {
-              showHidden: true,
+              showHidden: false,
               colors: true,
             }),
           );
@@ -63,7 +63,7 @@ export function sendLog(nativelog: NativeLog, isAllowed: boolean, ...args: Array
       if (typeof args[0] == 'object') {
         fargs.push(
           inspect(args[0], {
-            showHidden: true,
+            showHidden: false,
             colors: true,
           }),
         );

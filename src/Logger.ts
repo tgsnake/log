@@ -104,8 +104,7 @@ export class Logger {
       },
       options,
     );
-    // @ts-ignore
-    this._name = options.name.split(' ').join('-');
+    this._name = options.name!.split(' ').join('-');
     this._storage.setItem(
       'LOGLEVEL',
       (this._storage.getItem('LOGLEVEL') || options.level?.join('|')) as string,
@@ -202,7 +201,7 @@ export class Logger {
    * @param {Array<TypeLogLevel>} level - An array containing the logging levels to enable.
    * @returns {Array<TypeLogLevel>} The newly filtered array of active log levels.
    */
-  setLogLevel(level: Array<TypeLogLevel>) {
+  setLogLevel(level: Array<TypeLogLevel>): Array<TypeLogLevel> {
     level = level.filter((_level, _index) => {
       // @ts-ignore
       _level = _level.toLowerCase().trim();
@@ -227,7 +226,7 @@ export class Logger {
    * @param {TypeWarningLevel} level - The warning level sensitivity target (`'hard'` or `'soft'`).
    * @returns {void}
    */
-  setWarningLevel(level: TypeWarningLevel) {
+  setWarningLevel(level: TypeWarningLevel): void {
     let _level = level.toLowerCase().trim();
     let approved: Array<TypeWarningLevel> = ['hard', 'soft'];
     //@ts-ignore
@@ -244,7 +243,7 @@ export class Logger {
    * @param {Array<string>} filters - Allowed logger instance names.
    * @returns {boolean} `true` on successful configuration.
    */
-  setFilters(filters: Array<string>) {
+  setFilters(filters: Array<string>): boolean {
     let temp: Array<string> = [];
     for (let filter of filters) {
       if (/^All$/i.test(filter)) {
@@ -264,7 +263,7 @@ export class Logger {
    * @param {...Array<any>} args - Data items to be printed.
    * @returns {Array<any>} Array of the original input arguments.
    */
-  log(...args: Array<any>) {
+  log(...args: Array<any>): Array<any> {
     return sendLog(console.log, this.isAllowed(), ...args);
   }
 
@@ -274,7 +273,7 @@ export class Logger {
    * @param {...Array<any>} args - Debug log content.
    * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
-  debug(...args: Array<any>) {
+  debug(...args: Array<any>): any {
     let level: Array<TypeLogLevel> = ['debug', 'verbose'];
     for (let l of this._level) {
       if (level.includes(l)) {
@@ -289,7 +288,7 @@ export class Logger {
    * @param {...Array<any>} args - Informational log content.
    * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
-  info(...args: Array<any>) {
+  info(...args: Array<any>): any {
     let level: Array<TypeLogLevel> = ['info', 'debug', 'verbose'];
     const prnt = this.template('info'!, ...args);
     for (let l of this._level) {
@@ -305,7 +304,7 @@ export class Logger {
    * @param {...Array<any>} args - Error log content.
    * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
-  error(...args: Array<any>) {
+  error(...args: Array<any>): any {
     let level: Array<TypeLogLevel> = ['error', 'debug', 'verbose'];
     const prnt = this.template('error'!, ...args);
     for (let l of this._level) {
@@ -321,7 +320,7 @@ export class Logger {
    * @param {...Array<any>} args - Warning log content.
    * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
-  warning(...args: Array<any>) {
+  warning(...args: Array<any>): any {
     let level: Array<TypeLogLevel> = ['warning', 'debug', 'verbose'];
     if (this._storage.getItem('LOGWARNINGLEVEL') === 'hard') {
       level = level.concat(['none', 'info', 'error']);
@@ -342,7 +341,7 @@ export class Logger {
    * @param {...Array<any>} args - Message content to log.
    * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
-  combine(level: Array<TypeLogLevel>, ...args: Array<any>) {
+  combine(level: Array<TypeLogLevel>, ...args: Array<any>): any {
     for (let l of this._level) {
       if (level.includes(l)) {
         return this.log(...this.template(level[0]!, ...args));
@@ -406,7 +405,7 @@ export class Logger {
    *
    * @returns {string} Details of the class name and current JSON serialized properties.
    */
-  toString() {
+  toString(): string {
     return `[constructor of ${this.constructor.name}] ${JSON.stringify(this, null, 2)}`;
   }
 }

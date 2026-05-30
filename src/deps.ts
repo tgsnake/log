@@ -16,7 +16,7 @@
  * in various environments.
  */
 import { inspect as nodeInspect } from 'node:util';
-export { Chalk, ChalkInstance } from 'chalk';
+export { Chalk, type ChalkInstance } from 'chalk';
 export { default as ColorConvert } from 'color-convert';
 
 // Other platform compatibility

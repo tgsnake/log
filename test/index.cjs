@@ -1,4 +1,4 @@
-const { Logger } = require('../lib');
+const { Logger } = require('../dist/mod.js');
 
 const log = new Logger({
   level: ['warning', 'info'],
