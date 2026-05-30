@@ -1,0 +1,7 @@
+{
+  "deno.enable": false,
+  "files.exclude": {
+    "**.browser.ts": true,
+    "**.node.ts": true
+  }
+}

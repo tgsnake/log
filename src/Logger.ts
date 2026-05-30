@@ -1,40 +1,100 @@
 /**
- * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2023 butthx <https://github.com/butthx>
+ * tgsnake - Telegram MTProto library for javascript or typescript.
+ * Copyright (C) 2026 tgsnake <https://github.com/tgsnake>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
  * tgsnake is a free software : you can redistribute it and/or modify
- * it under the terms of the MIT License as published.
+ * it under the terms of the GPL v3 License as published.
  */
-import { type Chalk, ChalkInstance, inspect, isBrowser } from './platform.deno.ts';
-import { getLS, LocalStorage } from './LocalStorage.ts';
-import { sendLog, formatColor } from './Utilities.ts';
+import { Chalk, type ChalkInstance, inspect, platform } from './deps.js';
+import { getLS, LocalStorage } from './LocalStorage.js';
+import { sendLog, formatColor } from './Utilities.js';
 
+/**
+ * Custom color configuration mapping for various logging elements.
+ * Colors can be provided as standard chalk color names, hex codes, or rgb/hsl/hsv/hwb strings.
+ */
 export interface LoggerColor {
+  /** Color for debug-level output. Defaults to 'blue'. */
   debug?: string;
+  /** Color for info-level output. Defaults to 'green'. */
   info?: string;
+  /** Color for error-level output. Defaults to 'red'. */
   error?: string;
+  /** Color for warning-level output. Defaults to 'yellow'. */
   warning?: string;
+  /** Color for the logger name tag. Defaults to 'cyan'. */
   name?: string;
+  /** Color for the timestamp element. Defaults to 'grey'. */
   date?: string;
 }
+
+/**
+ * Valid logging severity levels.
+ * - `none`: Disable all logging output.
+ * - `info`: Standard informational messages.
+ * - `debug`: Verbose messages detailing operational steps, ideal for debugging.
+ * - `error`: Crucial error logs.
+ * - `verbose`: Highly detailed, comprehensive logs.
+ * - `warning`: Standard non-breaking alerts.
+ */
 export type TypeLogLevel = 'none' | 'info' | 'debug' | 'error' | 'verbose' | 'warning';
+
+/**
+ * Warning levels that define warning display behavior.
+ * - `soft`: Warnings will only appear when the warning log level is actively enabled.
+ * - `hard`: Warnings will appear across all enabled logging levels.
+ */
 export type TypeWarningLevel = 'soft' | 'hard';
+
+/**
+ * Configuration options for initializing a {@link Logger} instance.
+ */
 export interface LoggerOptions {
+  /** The descriptive name of the logger instance. Defaults to 'unamed'. */
   name?: string;
+  /** Array of active logging levels allowed for this logger. Defaults to `['debug']`. */
   level?: Array<TypeLogLevel>;
+  /** Custom console styling colors. */
   customColor?: LoggerColor;
 }
+
+/**
+ * Comprehensive customizable logger class utilized across the tgsnake framework.
+ * Supports Deno, Node.js, and browser environments. Includes runtime custom levels, warning handling, and filters.
+ */
 export class Logger {
-  /** @ignore */
+  /**
+   * The formatted name tag of this logger instance.
+   * Space characters are replaced by hyphens.
+   * @private
+   */
   private _name!: string;
-  /** @ignore */
+
+  /**
+   * Style configuration of the logger.
+   * @private
+   */
   private _color!: LoggerColor;
-  /** @ignore */
+
+  /**
+   * Key-value environmental storage client.
+   * @private
+   */
   private _storage: LocalStorage = getLS();
-  /** @ignore */
-  private _chalk: Chalk = new ChalkInstance({ level: 3 });
+
+  /**
+   * Chalk instance responsible for styling terminal output.
+   * @private
+   */
+  private _chalk: ChalkInstance = new Chalk({ level: 3 });
+
+  /**
+   * Creates a new instance of the Logger.
+   *
+   * @param {LoggerOptions} [options={}] - Configurable parameters for the Logger.
+   */
   constructor(options: LoggerOptions = {}) {
     options = Object.assign(
       {
@@ -64,13 +124,18 @@ export class Logger {
       options.customColor,
     );
   }
+
   /**
-   * @ignore
-   * Creating a log template.
+   * Creates a formatted template array based on the platform environment (Browser vs Terminal).
+   *
+   * @param {string} level - The level key representing the message type (e.g. 'info', 'debug').
+   * @param {...Array<any>} args - The items to be logged.
+   * @returns {Array<any>} Formatted log arguments ready for native log invocation.
+   * @private
    */
   private template(level: string, ...args: Array<any>) {
     let now = new Date();
-    if (isBrowser) {
+    if (platform === 'Browser') {
       return [
         `%c${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()} %c(${this._name}) %c${level} %c-`,
         `color: ${this._color.date};`,
@@ -94,9 +159,13 @@ export class Logger {
       ),
     ];
   }
+
   /**
-   * @ignore
-   * Filters this instance is allowed to write context in console.
+   * Determines if the logger instance is allowed to print to the console.
+   * Checks the environment variables `LOGFILTERS` value.
+   *
+   * @returns {boolean} `true` if this logger is permitted to write console logs, otherwise `false`.
+   * @private
    */
   private isAllowed(): boolean {
     let env = String(this._storage.getItem('LOGFILTERS') || '').split(',');
@@ -104,22 +173,37 @@ export class Logger {
     if (env.includes('all')) return true;
     return env.includes(this._name);
   }
+
   /**
-   * @ignore
-   * Get the current log level
+   * Gets the active log levels from storage.
+   *
+   * @returns {Array<TypeLogLevel>} List of currently allowed log level severities.
+   * @private
    */
   private get _level(): Array<TypeLogLevel> {
     //@ts-ignore
     return String(this._storage.getItem('LOGLEVEL') || 'debug').split('|');
   }
+
+  /**
+   * Sets the active log levels in storage.
+   *
+   * @param {Array<TypeLogLevel>} level - Array of log levels to persist.
+   * @private
+   */
   private set _level(level: Array<TypeLogLevel>) {
     this._storage.setItem('LOGLEVEL', level.join('|'));
   }
+
   /**
-   * Setting a log level.
+   * Updates the active log levels. Filters out any unrecognized or invalid levels.
+   * Approved levels include: `'none'`, `'info'`, `'debug'`, `'error'`, and `'verbose'`.
+   *
+   * @param {Array<TypeLogLevel>} level - An array containing the logging levels to enable.
+   * @returns {Array<TypeLogLevel>} The newly filtered array of active log levels.
    */
   setLogLevel(level: Array<TypeLogLevel>) {
-    level = level.filter((_level, index) => {
+    level = level.filter((_level, _index) => {
       // @ts-ignore
       _level = _level.toLowerCase().trim();
       let approved: Array<TypeLogLevel> = ['none', 'info', 'debug', 'error', 'verbose'];
@@ -134,10 +218,14 @@ export class Logger {
     });
     return (this._level = level);
   }
+
   /**
-   * Setting a warning level. <br/>
-   * If you set "hard" the warning will be appears in any log levels.<br/>
-   * If you set "soft" the warning will be appears only in warning log level.
+   * Sets the warning output sensitivity configuration.
+   * - `'hard'`: Warnings will be printed across all log levels.
+   * - `'soft'`: Warnings only show up when the warning level is specifically enabled.
+   *
+   * @param {TypeWarningLevel} level - The warning level sensitivity target (`'hard'` or `'soft'`).
+   * @returns {void}
    */
   setWarningLevel(level: TypeWarningLevel) {
     let _level = level.toLowerCase().trim();
@@ -147,9 +235,14 @@ export class Logger {
       return this.error(`Level of warning must be "hard" or "soft", but got "${level}"`);
     return this._storage.setItem('LOGWARNINGLEVEL', _level);
   }
+
   /**
-   * Setting a log filters <br/>
-   * If you set to "all", all instance will allowed to write context in console or terminal.
+   * Modifies the list of allowed logger names (filters) permitted to write to the console.
+   * If a filter string case-insensitively matches `"all"`, all logger instances are allowed.
+   * Space characters inside filter entries are automatically replaced by hyphens.
+   *
+   * @param {Array<string>} filters - Allowed logger instance names.
+   * @returns {boolean} `true` on successful configuration.
    */
   setFilters(filters: Array<string>) {
     let temp: Array<string> = [];
@@ -163,14 +256,23 @@ export class Logger {
     this._storage.setItem('LOGFILTERS', temp.join(','));
     return true;
   }
+
   /**
-   * Create log without template and without levels.
+   * Prints a raw console message without applying standard styling templates or verifying level limits.
+   * Still respects configured name filters.
+   *
+   * @param {...Array<any>} args - Data items to be printed.
+   * @returns {Array<any>} Array of the original input arguments.
    */
   log(...args: Array<any>) {
     return sendLog(console.log, this.isAllowed(), ...args);
   }
+
   /**
-   * Creating log with debug level
+   * Emits a formatted log message with `'debug'` severity level if permitted by current levels.
+   *
+   * @param {...Array<any>} args - Debug log content.
+   * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
   debug(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['debug', 'verbose'];
@@ -180,8 +282,12 @@ export class Logger {
       }
     }
   }
+
   /**
-   * Creating log with info level
+   * Emits a formatted log message with `'info'` severity level if permitted by current levels.
+   *
+   * @param {...Array<any>} args - Informational log content.
+   * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
   info(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['info', 'debug', 'verbose'];
@@ -192,8 +298,12 @@ export class Logger {
       }
     }
   }
+
   /**
-   * Creating log with error level
+   * Emits a formatted log message with `'error'` severity level if permitted by current levels.
+   *
+   * @param {...Array<any>} args - Error log content.
+   * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
   error(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['error', 'debug', 'verbose'];
@@ -204,8 +314,12 @@ export class Logger {
       }
     }
   }
+
   /**
-   * Creating log with warning level
+   * Emits a formatted warning log message if permitted by current levels or under `'hard'` warning severity.
+   *
+   * @param {...Array<any>} args - Warning log content.
+   * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
   warning(...args: Array<any>) {
     let level: Array<TypeLogLevel> = ['warning', 'debug', 'verbose'];
@@ -219,10 +333,14 @@ export class Logger {
       }
     }
   }
+
   /**
-   * Creating log with combine level. <br/>
-   * Like if you want to show the console in level "error" and "info" pass it as array in first arguments.<br/>
-   * The selected template will use the first index in the array.
+   * Utility that logs a formatted message if the current active levels match any entry in the target levels list.
+   * Formatted using the styling of the first level entry in the levels array.
+   *
+   * @param {Array<TypeLogLevel>} level - Array of levels allowed to trigger this combined output.
+   * @param {...Array<any>} args - Message content to log.
+   * @returns {any} Result of the raw logger write if logging occurs, otherwise undefined.
    */
   combine(level: Array<TypeLogLevel>, ...args: Array<any>) {
     for (let l of this._level) {
@@ -231,6 +349,13 @@ export class Logger {
       }
     }
   }
+
+  /**
+   * Custom Node.js utility inspect handler.
+   * Returns a lightweight representation of the logger instance to preserve clean terminal layouts.
+   *
+   * @returns {Record<string, any>} Serialized custom view object.
+   */
   [Symbol.for('nodejs.util.inspect.custom')](): { [key: string]: any } {
     const toPrint: { [key: string]: any } = {
       _: this.constructor.name,
@@ -245,9 +370,22 @@ export class Logger {
     }
     return toPrint;
   }
+
+  /**
+   * Custom Deno runtime inspect handler.
+   *
+   * @returns {string} Stringified inspected layout.
+   */
   [Symbol.for('Deno.customInspect')](): string {
     return String(inspect(this[Symbol.for('nodejs.util.inspect.custom')]()));
   }
+
+  /**
+   * Serializes the Logger instance to a simple JSON object.
+   * Filters out private properties beginning with an underscore.
+   *
+   * @returns {Record<string, any>} JSON-compatible serialized object.
+   */
   toJSON(): { [key: string]: any } {
     const toPrint: { [key: string]: any } = {
       _: this.constructor.name,
@@ -262,6 +400,12 @@ export class Logger {
     }
     return toPrint;
   }
+
+  /**
+   * Returns a standard formatted string representation of this class instance.
+   *
+   * @returns {string} Details of the class name and current JSON serialized properties.
+   */
   toString() {
     return `[constructor of ${this.constructor.name}] ${JSON.stringify(this, null, 2)}`;
   }

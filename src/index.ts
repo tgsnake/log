@@ -1,12 +1,18 @@
 /**
- * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2023 butthx <https://github.com/butthx>
+ * tgsnake - Telegram MTProto library for javascript or typescript.
+ * Copyright (C) 2026 tgsnake <https://github.com/tgsnake>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
  * tgsnake is a free software : you can redistribute it and/or modify
- * it under the terms of the MIT License as published.
+ * it under the terms of the GPL v3 License as published.
  */
 
-export { Logger } from './Logger.ts';
-export type { TypeLogLevel, TypeWarningLevel, LoggerOptions, LoggerColor } from './Logger.ts';
+/**
+ * @module tgsnake/log
+ * Primary entrypoint for the tgsnake logging utility.
+ * Exports the core {@link Logger} class along with type definitions for configuration and customization.
+ */
+
+export { Logger } from './Logger.js';
+export type { TypeLogLevel, TypeWarningLevel, LoggerOptions, LoggerColor } from './Logger.js';
