@@ -114,7 +114,4 @@ dist
 ignore.json
 
 #tsc 
-lib
-src/raw/Raw.ts
-src/raw/All.ts
-src/errors/exceptions
+browser

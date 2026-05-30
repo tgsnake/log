@@ -1,0 +1,17 @@
+{
+  "name": "@tgsnake/log",
+  "version": "2.0.0",
+  "exports": "./mod.ts",
+  "license": "MIT",
+  "publish": {
+    "include": [
+      "src/**/**",
+      "mod.ts",
+      "package.json",
+      "tsconfig.json",
+      "README.md",
+      "LICENSE",
+      "yarn.lock"
+    ]
+  }
+}
