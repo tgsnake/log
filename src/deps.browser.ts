@@ -15,17 +15,21 @@
  * the library works seamlessly.
  */
 import { inspect as nodeInspect } from 'util';
-export { Chalk } from 'chalk';
+export { Chalk, type ChalkInstance } from 'chalk';
 export { default as ColorConvert } from 'color-convert';
 
 // Other platform compatibility
 // After this line, we will provide some compatibility for Deno, Bun, and Browser so that the same code can run in both environments without modification.
+const isDeno = 'Deno' in globalThis;
+const isBun = 'Bun' in globalThis;
+const isBrowser = !isDeno && !isBun && typeof window !== 'undefined'; // browser compatibility
 
 /**
- * Identifies the runtime platform environment. Always 'Browser' for this module.
- * @type {string}
+ * Identifies the runtime platform environment.
+ * Can be 'Deno', 'Bun', 'Browser', or 'Node'.
+ * @type {'Deno' | 'Bun' | 'Browser' | 'Node'}
  */
-export const platform = 'Browser';
+export const platform = isDeno ? 'Deno' : isBun ? 'Bun' : isBrowser ? 'Browser' : 'Node';
 
 /**
  * Platform compatibility for browser inspection of objects.
