@@ -12,9 +12,9 @@ import path from 'path';
 
 function start(route) {
   const jsr = JSON.parse(fs.readFileSync(path.join(route, 'jsr.json'), 'utf8'));
-  const package = JSON.parse(fs.readFileSync(path.join(route, 'package.json'), 'utf8'));
-  if (jsr.version !== package.version) {
-    jsr.version = package.version;
+  const pkg = JSON.parse(fs.readFileSync(path.join(route, 'package.json'), 'utf8'));
+  if (jsr.version !== pkg.version) {
+    jsr.version = pkg.version;
     fs.writeFileSync(path.join(route, 'jsr.json'), JSON.stringify(jsr, null, 2));
   }
 }
