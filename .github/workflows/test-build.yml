@@ -46,5 +46,6 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: '2.x'
+      - run: deno install
       - run: npx jsr publish --dry-run
       - run: deno run --allow-all index.ts
