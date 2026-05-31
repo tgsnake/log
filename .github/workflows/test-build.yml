@@ -40,9 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
       - uses: denoland/setup-deno@v2
         with:
-          deno-version: 1.x
-      - run: deno publish --dry-run --allow-dirty
-      - run: deno install
+          deno-version: '2.x'
+      - run: npx jsr publish --dry-run
       - run: deno run --allow-all index.ts

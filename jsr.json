@@ -2,17 +2,9 @@
   "name": "@tgsnake/log",
   "version": "2.0.0",
   "exports": "./mod.ts",
-  "imports": {
-    "./src/": "./src/"
-  },
+  "license": "MIT",
   "publish": {
-    "include": ["mod.ts", "src/**/*.ts", "README.md", "LICENSE", "package.json"],
-    "exclude": ["test/**", "dist/**"]
-  },
-  "compilerOptions": {
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    "include": ["mod.ts", "src/**/**", "README.md", "LICENSE", "package.json", "yarn.lock"],
+    "exclude": ["test/**/**", "dist/**/**"]
   }
 }
