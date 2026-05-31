@@ -1,84 +1,149 @@
-# Tgsnake Log
+# Tgsnake Logger
 
-This framework is used to better display logs on your console or terminal.
+A lightweight, powerful, and highly customizable logging framework built to elevate console/terminal output. Works seamlessly across **Node.js**, **Deno**, **Bun**, and the **Browser**.
 
-## Available log levels
+[![JSR](https://jsr.io/badges/@tgsnake/log)](https://jsr.io/@tgsnake/log) [![NPM Version](https://img.shields.io/npm/v/@tgsnake/log.svg)](https://www.npmjs.com/package/@tgsnake/log) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This framework using `env` in node and `localStorage` in browser for betters performance :
+---
 
-- `LOGLEVEL` : To save the log level. So only declaring in one instance, all instance can read that log level.
-- `LOGFILTERS` : To save any instance that can display context on console or terminal (according to the name that was given at the time of initialization). default is `all,unamed`.
-- `LOGWARNINGLEVEL` : To save the warning level.
+## ⚠️ Breaking Changes in v2.0.0
 
-- `debug` or `verbose` : To showing all level in terminal.
-- `info` : Shows only context with level `info` on console or terminal.
-- `error` : Shows only context with level `error` on console or terminal.
-- `warn` : Shows only context with level `warn` (`warning`) on console or terminal.
-- `none` : Will not display anything on console or terminal
+Version `2.0.0` introduces modern packaging improvements to align with the current JS/TS ecosystem:
 
-## How to use
+- **Pure ESM (EcmaScript Modules)**: The package is now fully ESM. Since Node 20+ has support `require(ESM)`, this package now has fully writen to ESM. Minimum Node.js version is now **>= 22.0.0**. Formal support has been added for **Deno (>= 1.0.0)** and **Bun (>= 1.0.0)**.
+- **First-class JSR & Deno Support**: Native Deno integration and standard JSR publishing.
 
-```js
-const { Logger } = require('@tgsnake/log');
-const log = new Logger({
-  name: 'some-string-without-space-here',
-  level: ['debug'], // default level for this log
-});
+---
 
-log.log('Hello World'); // (name) info - Hello World DD/MM/YY hh:mm:ss.ms
+## 🚀 Features
+
+- **Cross-Platform**: Run the exact same codebase on Node.js, Deno, Bun, and standard Web Browsers.
+- **Unified Global State**: Uses `process.env` (Node/Bun/Deno) or `localStorage` (Browser) to synchronize configurations. Set log levels or filters once, and all instances automatically inherit the settings.
+- **Advanced Dynamic Colors**: Complete control over styling with support for Hex codes (`#ff0000`), keywords (`orange`), RGB, HSL, HSV, and HWB.
+- **Granular Filters**: Exclude or isolate output from specific logging instances using name-based filtering.
+- **Warning Levels**: Toggle between `soft` and `hard` warning visibility modes.
+
+---
+
+## 📦 Installation
+
+### Node.js / Bun / Package Managers
+
+```bash
+# npm
+npm install @tgsnake/log
+
+# yarn
+yarn add @tgsnake/log
+
+# pnpm
+pnpm add @tgsnake/log
+
+# bun
+bun add @tgsnake/log
 ```
 
-## Class Method
+### Deno / JSR
 
-- `log` : Print log without template.
-- `info` : Print log as info level.
-- `error` : Print log as error level.
-- `warning` : Print log as warning level.
-- `combine` : Print log as multiple level.
-- `debug` : Print log as debug level.
-- `setLogLevel` : Setting the log level.
-- `setWarningLevel` : Setting the warning level. `hard` if you want show the context in all log level, `soft` if you want show the context only in `warning` or `debug` or `verbose` level.
-- `setFilters` : Setting any instance that can display context in the console or terminal.
+```bash
+# Deno CLI
+deno add jsr:@tgsnake/log
+```
 
-## Options
+---
 
-| parameter | type | description |
-| :-- | :-: | :-- |
-| name | string | Name of logger instance, default is `unamed` |
-| level | Array of `debug`, `none`, `info`, `error`, `verbose` | The level of the logger. By default it will take the value from the env `LOGLEVEL` or if it is not available it will automatically go into `debug` level |
-| customColor | [Color](#color) | Console color customization |
+## 🛠️ How to Use
 
-### Color
+### Basic Example
 
-On deno supports chalk v5 customization while on node supports chalk v4 customization. For RGB, HSL (only for node), HSV (only for node), HWB (only for node), you can use the format: `format(a,b,c)` example `rgb(0,0,0)` or `hsl(0,0,0)`. And you can directly provide the hex code (eg: `#fff`). In nodes, you can also use [keywords from CSS](https://www.w3.org/wiki/CSS/Properties/color/keywords) like `orange`.
+```javascript
+import { Logger } from '@tgsnake/log';
 
-| category |  type  | description                              |
-| :------- | :----: | :--------------------------------------- |
-| name     | string | color of logger name                     |
-| date     | string | color of date                            |
-| debug    | string | color when debug level and verbose level |
-| info     | string | color when info level                    |
-| error    | string | color when error level                   |
-| warning  | string | color when warning level                 |
-
-#### Example
-
-```js
-const { Logger } = require("@tgsnake/log")
 const log = new Logger({
-  name : "some-string-without-space-here",
-  level : ["debug"] // default level for this log,
-  customColor : {
+  name: 'my-app',
+  level: ['debug'], // Default level for this log instance
+});
+
+log.log('Hello World');
+// Output format: (my-app) info - Hello World DD/MM/YY hh:mm:ss.ms
+```
+
+### Logger Instance Methods
+
+- `log(...args)`: Prints the log message directly without any specific levels/templates.
+- `debug(...args)`: Prints verbose messages at the `debug` level.
+- `info(...args)`: Prints informational messages at the `info` level.
+- `warning(...args)`: Prints non-breaking warning alerts.
+- `error(...args)`: Prints critical failure/error messages.
+- `combine(levels, ...args)`: Logs a message applying styling and rules of multiple levels concurrently.
+- `setLogLevel(levels)`: Dynamically update the active log level(s) for all instances globally.
+- `setWarningLevel(mode)`: Set warning visibility level to `'hard'` (show warnings across all log levels) or `'soft'` (only show warnings when warning/debug/verbose level is active).
+- `setFilters(filters)`: Set filter strings (comma-separated names) to decide which instances are allowed to output logs.
+
+---
+
+## ⚙️ Configuration & Environment Variables
+
+`@tgsnake/log` leverages environmental variables (`process.env` or browser `localStorage`) to maintain high-performance global states across all logger instances.
+
+| Variable | Default | Description |
+| :-- | :-- | :-- |
+| `LOGLEVEL` | `['debug']` | Active logging levels. Options include: `none`, `info`, `debug`, `error`, `verbose`, `warning`. |
+| `LOGFILTERS` | `'all,unamed'` | Comma-separated names of logger instances permitted to print. Use `'all'` to allow everything. |
+| `LOGWARNINGLEVEL` | `'hard'` | Behavior of warnings. Set to `'hard'` or `'soft'`. |
+
+---
+
+## 🎨 Console Color Customization
+
+Customizing console/terminal themes is incredibly simple. For RGB, HSL, HSV, and HWB, use the standard functional format: `format(a,b,c)` (e.g. `rgb(0,255,0)`). Hex codes (e.g., `#ff0505`) and standard keyword strings (e.g. `azure`, `grey`) are also fully supported.
+
+### Logger Options Interface
+
+```typescript
+interface LoggerOptions {
+  name?: string; // Name of logger instance (default: 'unamed')
+  level?: Array<TypeLogLevel>; // Default log levels if global state not set
+  customColor?: LoggerColor; // Custom colors for different output segments
+}
+```
+
+### Color Configuration
+
+| Key       |   Type   | Description                                    |
+| :-------- | :------: | :--------------------------------------------- |
+| `name`    | `string` | Color applied to the logger's name tag.        |
+| `date`    | `string` | Color applied to the timestamp element.        |
+| `debug`   | `string` | Color applied to the debug and verbose levels. |
+| `info`    | `string` | Color applied to the info level.               |
+| `error`   | `string` | Color applied to the error level.              |
+| `warning` | `string` | Color applied to the warning level.            |
+
+#### Custom Color Example
+
+```javascript
+import { Logger } from '@tgsnake/log';
+
+const log = new Logger({
+  name: 'auth-service',
+  level: ['debug', 'info', 'error'],
+  customColor: {
+    name: 'cyan',
+    date: 'grey',
     debug: 'blue',
     info: 'rgb(0,255,0)',
     error: '#ff0505',
     warning: 'hsv(44,98,100)',
-    name: 'azure',
-    date: 'grey',
-  }
-})
+  },
+});
+
+log.info('Service started successfully!');
 ```
 
-## MIT LICENSE
+---
 
-Build with ♥️ by [tgsnake dev](https://t.me/tgsnakechat).
+## 📄 License
+
+Distributed under the [MIT License](LICENSE).
+
+Built with ♥️ by the tgsnake dev.
