@@ -139,14 +139,14 @@ export class Logger {
         `%c${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()} %c(${this._name}) %c${level} %c-`,
         `color: ${this._color.date};`,
         `color: ${this._color.name};`,
-        `color: ${this._color[level]};`,
+        `color: ${this._color[level as keyof LoggerColor]};`,
         ``,
         ...args,
       ];
     }
     return [
       formatColor(this._chalk, this._color.name!, `(${this._name})`),
-      formatColor(this._chalk, this._color[level], level),
+      formatColor(this._chalk, this._color[level as keyof LoggerColor]!, level),
       '-',
       ...args,
       formatColor(
@@ -376,7 +376,7 @@ export class Logger {
    * @returns {string} Stringified inspected layout.
    */
   [Symbol.for('Deno.customInspect')](): string {
-    return String(inspect(this[Symbol.for('nodejs.util.inspect.custom')]()));
+    return String(inspect((this as any)[Symbol.for('nodejs.util.inspect.custom')]()));
   }
 
   /**

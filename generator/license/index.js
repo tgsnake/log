@@ -1,14 +1,14 @@
 /**
- * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2023 butthx <https://github.com/butthx>
+ * tgsnake - Telegram MTProto library for javascript or typescript.
+ * Copyright (C) 2026 tgsnake <https://github.com/tgsnake>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
  * tgsnake is a free software : you can redistribute it and/or modify
- * it under the terms of the MIT License as published.
+ * it under the terms of the GPL v3 License as published.
  */
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 const cdateRE = /(\* )?Copyright \(C\) (\d+)/im;
 
 function parseDate(source) {

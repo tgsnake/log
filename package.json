@@ -14,6 +14,7 @@
   "scripts": {
     "build": "tsc",
     "build:license": "node ./generator/license",
+    "build:jsr": "node ./generator/jsr-version",
     "prepare": "yarn build",
     "prettier": "NODE_OPTIONS=--max_old_space_size=4096 prettier -w ."
   },

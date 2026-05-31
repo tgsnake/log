@@ -42,7 +42,8 @@ export class Storage implements LocalStorage {
    */
   removeItem(key: string): void {
     if (platform === 'Deno' && 'Deno' in globalThis) {
-      return globalThis.Deno.env.delete(key) ?? null;
+      globalThis.Deno.env.delete(key);
+      return;
     }
     delete process.env[key];
   }

@@ -118,7 +118,7 @@ export function formatColor(chalk: ChalkInstance, color: string, text: string) {
     return chalk.hex(color)(text);
   }
   if (color in chalk && typeof chalk[color as keyof ChalkInstance] === 'function') {
-    return chalk[color](text);
+    return (chalk as any)[color](text);
   }
   if (color) {
     const rgb = ColorConvert.keyword.rgb(color);

@@ -38,4 +38,4 @@ export const platform = isDeno ? 'Deno' : isBun ? 'Bun' : isBrowser ? 'Browser' 
  *
  * @type {typeof nodeInspect}
  */
-export const inspect: typeof nodeInspect = isDeno ? globalThis.Deno.inspect : nodeInspect; // Deno compatibility, use Deno.inspect if available, otherwise use Node's util.inspect
+export const inspect = (isDeno ? globalThis.Deno.inspect : nodeInspect) as any;
