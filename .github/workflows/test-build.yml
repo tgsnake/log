@@ -1,5 +1,4 @@
 name: Testing Package
-
 on:
   workflow_dispatch:
   pull_request:
@@ -41,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: denoland/setup-deno@v2@v2
+      - uses: denoland/setup-deno@v2
         with:
           deno-version: 1.x
       - run: deno publish --dry-run --allow-dirty
