@@ -1,6 +1,6 @@
 {
   "name": "@tgsnake/log",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "logging framework for tgsnake",
   "main": "./dist/mod.js",
   "types": "./dist/mod.d.ts",
